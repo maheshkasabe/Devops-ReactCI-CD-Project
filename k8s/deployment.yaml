@@ -15,7 +15,7 @@ spec:
         app: counter
     spec:
       containers:
-        - image: maheshkasbe/counterapp:latest
+        - image: maheshkasbe/counter-app:latest
           name: counter-container
           ports:
             - containerPort: 3000
