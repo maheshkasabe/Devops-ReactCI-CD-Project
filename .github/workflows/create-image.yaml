@@ -26,7 +26,7 @@ jobs:
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_TOKEN }}
     
-    - name:
+    - name: idk
       uses: docker/build-push-action@v2
       with:
         context: .
