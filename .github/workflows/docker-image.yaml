@@ -2,9 +2,8 @@ name: Docker Image CI
 
 on:
   push:
-    branches: [ master ]
-  pull_request:
-    branches: [ master ]
+    tags:
+      - 'v*'
 
 jobs:
 
@@ -15,6 +14,11 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
+    - name: get version
+      id: get-version
+      run: |
+        echo ::set-output name=VERSION::$(echo $GITHUB_REF | cut -d / -f 3)
+
     - name: login to docker hub 
       uses: docker/login-action@v2
       with: 
@@ -24,6 +28,36 @@ jobs:
     - name: create image
       run: |
         cd app
-        docker build -t counter-app . 
-        docker tag counter-app:latest maheshkasbe/counter-app:latest
-        docker push maheshkasbe/counter-app:latest
+        docker build -t counter-app:${{ steps.get-version.outputs.VERSION }} . 
+
+    - name: get image ID
+      id: image-id
+      run: |
+        echo ::set-output name=IMAGE_ID::$(docker images -q counter-app:${{ steps.get-version.outputs.VERSION }})
+
+    - name: push image 
+      run: 
+        docker tag ${{ steps.image-id.outputs.IMAGE_ID }} maheshkasbe/counter-app:${{ steps.get-version.outputs.VERSION }}
+        docker push maheshkasbe/counter-app:${{ steps.get-version.outputs.VERSION }}
+
+    - name: install yq 
+      uses: mikefarah/yq@v4.15.1
+
+    - name: update yaml file
+      run: |
+        cd k8s
+        yq e -i '.spec.template.spec.containers[0].image="maheshkasbe/counter-app:${{ steps.get-version.outputs.VERSION }}"' deployment.yml
+        cat deployment.yml
+    
+    - name: Commit and push changes
+      uses: dmnemec/copy_file_to_another_repo_action@main
+      env:
+        API_TOKEN_GITHUB: ${{ secrets.PAT }}
+      with: 
+        source_file: k8s/deployment.yml
+        destination_repo: https://github.com/Mahesh-Kasabe/devops-project
+        destination_branch: main
+        destination_folder: k8s
+        user_email: maheshkasbe010@gmail.com
+        user_name: Mahesh-Kasabe
+        commit_message: update image version ${{ steps.get_version.outputs.VERSION }} in yml file 
