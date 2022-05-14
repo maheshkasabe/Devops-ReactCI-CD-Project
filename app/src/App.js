@@ -12,7 +12,7 @@ function App() {
   }
 
   const inc2 = () => {
-    setcount(count+2)
+    setcount(count+3)
   }
   const dec2 = () => {
     setcount(count-2)
@@ -24,7 +24,7 @@ function App() {
 
       <div className='counter'>
 
-      <button className='inc' onClick={inc2}> +2 </button>
+      <button className='inc' onClick={inc2}> +3 </button>
       <button className='inc' onClick={inc}> +1 </button>
         <h1>{count}</h1>
       <button className='dec' onClick={dec}> -1 </button>
