@@ -36,7 +36,7 @@ jobs:
       run: |
         docker tag ${{ steps.image-id.outputs.IMAGE_ID }} maheshkasbe/counter-app:${{ steps.get-version.outputs.VERSION }}
         docker push maheshkasbe/counter-app:${{ steps.get-version.outputs.VERSION }}
-        
+
     - name: install yq 
       uses: mikefarah/yq@v4.15.1
 
